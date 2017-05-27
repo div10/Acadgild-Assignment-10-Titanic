@@ -1,0 +1,38 @@
+data = LOAD 'TitanicData.txt' using PigStorage(',') as (passengerID:int, survived:int, pClass:int, name:chararray, sex:chararray, age:int, sibSp:int, parch:int, ticket:chararray, fare:float, cabin:chararray, embarked:chararray);
+
+1) In this problem statement we will find the average fare of each class.
+
+grp_class = group data by pClass;
+fare_class = foreach grp_class generate $0 as class,AVG(data.fare) as avg_fare;
+dump fare_class;
+
+(1,84.15468752825701)
+(2,20.66218318109927)
+(3,13.675550210257411)
+
+2) In this problem statement we will find the number of people alive in each class and are embarked in Southampton
+
+data_Southampton = FILTER data by embarked=='S';
+data_embarkedS_alive = FILTER data_Southampton by survived==0
+grp_class_embarkedS_alive = group data_embarkedS_alive by pClass;
+result = foreach grp_class_embarkedS_alive generate $0 as class,COUNT(data_embarkedS_alive.survived) as survived_count;
+dump result;
+
+(1,53)
+(2,88)
+(3,286)
+
+3) In this problem statement we will find out number of male and female people died in each class.
+
+data_dead = FILTER data by survived==1;
+grp_class_sex = group data_dead by (pClass,sex);
+result = foreach grp_class_sex generate $0, COUNT(data_dead.survived) ;
+dump result;
+
+((1,male),45)
+((1,female),91)
+((2,male),17)
+((2,female),70)
+((3,male),47)
+((3,female),72)
+
